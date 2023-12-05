@@ -20,7 +20,7 @@ namespace gyak12
 
                 xlSheet = xlWb.ActiveSheet;
 
-                //CreateTable();
+                CreateTable();
 
                 xlApp.Visible= true;
                 xlApp.UserControl = true;
@@ -51,8 +51,30 @@ namespace gyak12
 
             for (int i = 0; i < fejlecek.Length; i++)
             {
-                xlSheet.Cells[1, 1] = fejlecek[0];
+                xlSheet.Cells[1, i+1] = fejlecek[i];
             }
+
+            Models.HajosContext context = new Models.HajosContext();
+            var mindenkerdes = context.Questions.ToList();
+
+            object[,] adattomb = new object[mindenkerdes.Count(), fejlecek.Count()];
+
+            for (int i = 0; i < mindenkerdes.Count(); i++)
+            {
+                adattomb[i, 0] = mindenkerdes[i].Question1;
+                adattomb[i, 1] = mindenkerdes[i].Answer1;
+                adattomb[i, 2] = mindenkerdes[i].Answer2;
+                adattomb[i, 3] = mindenkerdes[i].Answer3;
+                adattomb[i, 4] = mindenkerdes[i].CorrectAnswer;
+                adattomb[i, 5] = mindenkerdes[i].Image;
+            }
+
+            int sorokSzáma = adattomb.GetLength(0);
+            int oszlopokSzáma = adattomb.GetLength(1);
+
+            Excel.Range adatRange = xlSheet.get_Range("A2", Type.Missing).get_Resize(sorokSzáma, oszlopokSzáma);
+            adatRange.Value2 = adattomb;
+            adatRange.Columns.AutoFit();
         }
 
     }
